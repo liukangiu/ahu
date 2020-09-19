@@ -1,0 +1,14 @@
+
+int a=0;
+void setup() {
+  Serial.begin(9600);
+  pinMode(2, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  if (digitalRead(7)==1){delay(500);
+  if(digitalRead(7)==1){Serial.println(digitalRead(7));digitalWrite(2, HIGH);delay(2000);}}
+digitalWrite(2, LOW);
+  delay(100);
+}

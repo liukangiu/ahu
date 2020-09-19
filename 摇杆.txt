@@ -1,0 +1,102 @@
+
+int sensorPin = 5;
+int x=0;
+int y=0;
+int yjz=0;//y轴摇杆校准
+int xjz=0;//y轴摇杆校准
+int xpwm=0;
+int ypwm=0;
+int xqddl=40;//左电机启动电流
+int yqddl=40;//右电机启动电流
+int lpwm=0;
+int rpwm=0;
+// the setup routine runs once when you press reset:
+void setup() {
+  // initialize serial communication at 9600 bits per second:
+  Serial.begin(9600);
+    pinMode(0, INPUT);
+      pinMode(1, INPUT);
+      pinMode(3, INPUT);
+      pinMode(12, OUTPUT);
+      pinMode(13, OUTPUT);
+      yjz=analogRead(1);
+      xjz=analogRead(0);
+}
+
+// the loop routine runs over and over again forever:
+void loop() {
+  analogWrite(3,0);analogWrite(5,0);
+  x=analogRead(0);
+  y=analogRead(1);
+  y=y-yjz;
+  x=x-xjz;
+  ypwm=y/520.1*210;
+  xpwm=x/520.1*150;
+  if (abs(xpwm)<3){xpwm=0;}
+  if (abs(ypwm)<3){ypwm=0;}
+if (ypwm>0) 
+  {
+    digitalWrite(10,HIGH); digitalWrite(11,LOW);digitalWrite(12,HIGH); digitalWrite(13,LOW);
+    ypwm=ypwm+40;
+    if (xpwm<=0)
+    {
+      if(xpwm<-ypwm)
+      {
+        lpwm=0;rpwm=125;
+      }
+      else
+      {
+        lpwm=ypwm+xpwm;rpwm=ypwm;
+      }
+    }
+    else if (xpwm>0)
+    {
+      if(xpwm>ypwm)
+      {
+        lpwm=125;ypwm=0;
+       }
+      else
+      {
+         lpwm=ypwm;rpwm=ypwm-xpwm;
+      }
+     }
+  }  
+else if (ypwm<0)
+  {
+    digitalWrite(11,HIGH); digitalWrite(10,LOW);digitalWrite(13,HIGH); digitalWrite(12,LOW);
+    ypwm=-ypwm+40;
+    if (xpwm<=0)
+    {
+      if(xpwm<-ypwm)
+      {
+        lpwm=0;rpwm=125;
+      }
+      else
+      {
+        lpwm=ypwm+xpwm;rpwm=ypwm;
+      }
+    }
+    else if (xpwm>0)
+    {
+      if(xpwm>ypwm)
+      {
+        lpwm=125;ypwm=0;
+       }
+      else
+      {
+         lpwm=ypwm;rpwm=ypwm-xpwm;
+      }
+     }
+  }
+  else
+  {
+   lpwm=0;rpwm=0; 
+   }
+     Serial.println("**************");
+     analogWrite(3,lpwm);analogWrite(5,rpwm);
+    Serial.println(lpwm);Serial.println(rpwm);
+    
+
+delay(100);
+ 
+}

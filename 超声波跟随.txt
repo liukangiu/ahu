@@ -1,0 +1,100 @@
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(7,8); // TX, RX 虚拟软串口
+unsigned char comdataL[3]={};//接受左边传感器的数据
+int DistanceL=0;//左边小车的距离发送模块的距离
+unsigned char comdataR[3]={};//接受右边传感器的数据
+int DistanceR=0;//右边小车的距离发送模块的距离
+int i=0,j=0;
+void setup() {
+  // 设置硬件串口的波特率为115200
+  Serial.begin(115200);//利用默认的UNO串口 1:Rx 2:Tx
+  // 设置软串口的波特率为115200
+  mySerial.begin(115200);
+}
+void loop() { // 主循环函数
+    chuankoutest();
+    GoStop();
+    if(abs(DistanceL-DistanceR)>15)
+    {
+        if(DistanceL>DistanceR)
+        {
+          GoRight();//小车右走
+          }
+        if(DistanceL<DistanceR)
+        {
+          GoLeft();//小车右走
+          }
+    }
+    if((DistanceL>40)&&(DistanceL<1000)&&(DistanceR>40)&&(DistanceR<1000))
+    {
+      GoBehind();
+     }
+    else if((DistanceL>1100)&&(DistanceL<4000)&&(DistanceR>1100)&&(DistanceR<4000))
+    {
+      GoAhead();//小车直行
+     }
+    else//超出范围小车自动停止
+    {
+      GoStop();
+      }
+}
+//子程序
+void GoAhead()//前进
+{
+    analogWrite(6,120);//左前
+    analogWrite(5,0);//左后
+    analogWrite(9,120);//右前
+    analogWrite(10,0);//右后
+}
+void GoBehind()//后退
+{
+    analogWrite(6,0);//左前
+    analogWrite(5,100);//左后
+    analogWrite(9,0);//右前
+    analogWrite(10,100);//右后
+}
+void GoLeft()//左转       
+{
+    analogWrite(6,0);//左前
+    analogWrite(5,100);//左后
+    analogWrite(9,100);//右前
+    analogWrite(10,0);//右后
+}
+void GoRight()//右转       
+{
+    analogWrite(6,100);//左前
+    analogWrite(5,0);//左后
+    analogWrite(9,0);//右前
+    analogWrite(10,100);//右后   
+}
+void GoStop()
+{
+    analogWrite(6,0);//左前
+    analogWrite(5,0);//左后
+    analogWrite(9,0);//右前
+    analogWrite(10,0);//右后   
+}
+void chuankoutest()
+{
+  mySerial.listen();
+  if (mySerial.available()) {//如果串口数据可用
+       for(j=0;j<3;j++)
+       {
+         comdataR[j]= char(mySerial.read());//把获取传感器的数据存放到数组里面
+        }      
+     }
+      if(comdataR[0]==0xA5)//判断数据的头文件
+      {
+        DistanceR=comdataR[1]<<8|comdataR[2];//把收到的数据合成为距离值 
+      } 
+  
+  if(Serial.available()) {//如果串口数据可用
+    comdataL[i++]= char(Serial.read());//把获取传感器的数据存放到数组里面
+        delay(2);
+        if(i>2)i=0;
+      if(comdataL[0]==0xA5)//判断数据的头文件
+      {
+        DistanceL=comdataL[1]<<8|comdataL[2];//把收到的数据合成为距离值 
+      }   
+    }
+}

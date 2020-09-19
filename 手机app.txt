@@ -1,0 +1,118 @@
+int L_IN1=6;//左轮前进驱动量 
+int L_IN2=5;//左轮后退驱动量 
+int R_IN1=9;//右轮前进驱动量 
+int R_IN2=10;//右轮后退驱动量 
+int Speed=120;//初始车速大小
+char Carflag=10;//小车初始状态值
+void motormove(char forward,char Speed);//前进 后退
+void motorAheadTurn(char forward,char Speed);//左转 右转
+void motorBehindTurn(char forward,char Speed);
+void motorstop();//停止
+void motorleft();//左转
+void motorright();//右转  
+String comdata = "";
+void setup(){
+    Serial.begin(9600);//串口波特率设置
+    pinMode(6,OUTPUT);
+    pinMode(5,OUTPUT);
+    pinMode(10,OUTPUT);
+    pinMode(9,OUTPUT);  
+}
+void loop(){
+    while (Serial.available() > 0)  
+    {
+        comdata += char(Serial.read());
+        delay(2);
+    }
+    if (comdata.length() > 0)
+    {
+    if(comdata[0]=='X' ){Speed=200;}//高速模式
+    else if(comdata[0]=='Y' ){Speed=120;}//低速模式
+    else if(comdata[0]=='A' ){motormove(1,Speed);}//收到A前进
+    else if(comdata[0]=='E' ){motormove(0,Speed);}//收到E后退
+    else if(comdata[0]=='G' ){motorleft();}//收到G左转
+    else if(comdata[0]=='C' ){motorright();}//收到C右转
+    else if(comdata[0]=='B' ){motorAheadTurn(0,Speed);}//收到B右前走
+    else if(comdata[0]=='H' ){motorAheadTurn(1,Speed);}//收到H左前走
+    else if(comdata[0]=='D' ){motorBehindTurn(0,Speed);}//收到D右后走
+    else if(comdata[0]=='F' ){motorBehindTurn(1,Speed);}//收到F左后走
+    else if(comdata[0]=='Z' ){motorstop();}//小车停止
+      comdata = "";
+    }
+}
+void motormove(char forward,char Speed)
+{
+  if(forward==1)//前进
+  {
+    analogWrite(L_IN1,Speed+10);//6脚
+    analogWrite(L_IN2,forward-1);//5脚
+    analogWrite(R_IN1,Speed);//9脚
+    analogWrite(R_IN2,forward-1);//10脚
+    }
+  if(forward==0)//后退
+  {
+    analogWrite(L_IN1,forward);//6脚
+    analogWrite(L_IN2,Speed);//5脚
+    analogWrite(R_IN1,forward);//9脚
+    analogWrite(R_IN2,Speed);//10脚
+    }  
+}
+void motorAheadTurn(char forward,char Speed)
+{
+  if(forward==1)//左前走
+  {
+    
+      analogWrite(L_IN1,Speed-20);//6脚
+      analogWrite(L_IN2,forward-1);//5脚
+      analogWrite(R_IN1,Speed);//9脚
+      analogWrite(R_IN2,forward-1);//10脚
+    }
+
+  if(forward==0)//右前走
+  {
+
+      analogWrite(L_IN1,Speed);//6脚
+      analogWrite(L_IN2,forward);//5脚
+      analogWrite(R_IN1,Speed-20);//9脚
+      analogWrite(R_IN2,forward);//10脚
+    }  
+  
+}
+void motorBehindTurn(char forward,char Speed)
+{
+     if(forward==1)
+     {
+      analogWrite(L_IN1,forward-1);//6脚
+      analogWrite(L_IN2,Speed-20);//5脚
+      analogWrite(R_IN1,forward-1);//9脚
+      analogWrite(R_IN2,Speed);//10脚 
+      }  
+     if(forward==0)
+     {
+      analogWrite(L_IN1,forward);//6脚
+      analogWrite(L_IN2,Speed);//5脚
+      analogWrite(R_IN1,forward);//9脚
+      analogWrite(R_IN2,Speed-20);//10脚 
+     }    
+ }
+void motorleft()//左旋转
+{
+    analogWrite(L_IN1,0);//6脚
+    analogWrite(L_IN2,100);//5脚
+    analogWrite(R_IN1,100);//9脚
+    analogWrite(R_IN2,0);//10脚
+}
+void motorright()//右旋转
+{
+    analogWrite(L_IN1,100);//6脚
+    analogWrite(L_IN2,0);//5脚
+    analogWrite(R_IN1,0);//9脚
+    analogWrite(R_IN2,100);//10脚
+}
+void motorstop()
+{
+  analogWrite(L_IN1,0);
+  analogWrite(L_IN2,0);
+  analogWrite(R_IN1,0);
+  analogWrite(R_IN2,0);
+ }
